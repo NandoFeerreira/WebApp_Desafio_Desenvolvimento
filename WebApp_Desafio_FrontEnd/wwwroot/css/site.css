@@ -103,3 +103,38 @@ body {
 .input-group-addon {
     font-size: 7px !important;
 }
+
+.autocomplete-list {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin: 2px 0 0 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    min-width: 200px;
+}
+
+    .autocomplete-list li {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .autocomplete-list li:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-list li:hover,
+        .autocomplete-list li.selected {
+            background-color: #f5f5f5;
+        }
+
+#Solicitante {
+    position: relative;
+}
