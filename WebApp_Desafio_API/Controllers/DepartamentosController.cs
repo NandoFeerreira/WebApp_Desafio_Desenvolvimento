@@ -71,7 +71,7 @@ namespace WebApp_Desafio_API.Controllers
         {
             try
             {
-                var _departamento = this.bll.ObterDepartamento(idDepartamento);
+                var _departamento = this.bll.ObterDepartamentoPorId(idDepartamento);
 
                 var departamento = new DepartamentoResponse()
                 {
@@ -96,22 +96,59 @@ namespace WebApp_Desafio_API.Controllers
         }
 
         /// <summary>
-        /// Grava os dados de um departamento
+        /// Insere um novo departamento
         /// </summary>
         [HttpPost]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-        [Route("Gravar")]
-        public IActionResult Gravar([FromBody] DepartamentoRequest request)
+        [Route("Inserir")]
+        public IActionResult Inserir([FromBody] DepartamentoRequest request)
         {
             try
             {
                 if (request == null)
                     throw new ArgumentNullException("Request não informado.");
 
-                var resultado = this.bll.GravarDepartamento(request.id, request.descricao);
+                var resultado = this.bll.InserirDepartamento(request.descricao);
+
+                return Ok(resultado);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ApplicationException ex)
+            {
+                return StatusCode(422, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Atualiza os dados de um departamento existente
+        /// </summary>
+        [HttpPut]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        [Route("Atualizar")]
+        public IActionResult Atualizar([FromBody] DepartamentoRequest request)
+        {
+            try
+            {
+                if (request == null)
+                    throw new ArgumentNullException("Request não informado.");
+
+                if (request.id <= 0)
+                    throw new ArgumentException("ID do departamento inválido.");
+
+                var resultado = this.bll.AtualizarDepartamento(request.id, request.descricao);
 
                 return Ok(resultado);
             }
@@ -138,7 +175,7 @@ namespace WebApp_Desafio_API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [Route("Excluir")]
-        public IActionResult Excluir([FromRoute] int idDepartamento)
+        public IActionResult Excluir([FromQuery] int idDepartamento)
         {
             try
             {

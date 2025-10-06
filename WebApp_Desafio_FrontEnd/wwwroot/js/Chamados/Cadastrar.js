@@ -10,6 +10,27 @@
         language: 'pt-BR'
     });
 
+    $('#Solicitante').autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                url: config.contextPath + 'Chamados/AutocompleteSolicitantes',
+                type: 'GET',
+                data: { term: request.term },
+                success: function (data) {
+                    response(data);
+                },
+                error: function () {
+                    response([]);
+                }
+            });
+        },
+        minLength: 2,
+        select: function (event, ui) {
+            $('#Solicitante').val(ui.item.value);
+            return false;
+        }
+    });
+
     $('#btnCancelar').click(function () {
         Swal.fire({
             html: "Deseja cancelar essa operação? O registro não será salvo.",
@@ -29,6 +50,24 @@
         if ($('#form').valid() != true) {
             FormularioInvalidoAlert();
             return;
+        }
+
+        let dataAbertura = $('#DataAbertura').val();
+        if (dataAbertura) {
+            let partesData = dataAbertura.split('/');
+            let dataInformada = new Date(partesData[2], partesData[1] - 1, partesData[0]);
+            let hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            dataInformada.setHours(0, 0, 0, 0);
+
+            if (dataInformada < hoje) {
+                Swal.fire({
+                    text: 'Não é permitido criar chamados com data retroativa.',
+                    confirmButtonText: 'OK',
+                    icon: 'error'
+                });
+                return;
+            }
         }
 
         let chamado = SerielizeForm($('#form'));

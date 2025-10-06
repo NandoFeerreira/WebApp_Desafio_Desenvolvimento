@@ -124,7 +124,7 @@ namespace WebApp_Desafio_BackEnd.DataAccess
             return chamado;
         }
 
-        public bool GravarChamado(int ID, string Assunto, string Solicitante, int IdDepartamento, DateTime DataAbertura)
+        public bool InserirChamado(string Assunto, string Solicitante, int IdDepartamento, DateTime DataAbertura)
         {
             int regsAfetados = -1;
 
@@ -132,22 +132,45 @@ namespace WebApp_Desafio_BackEnd.DataAccess
             {
                 using (SQLiteCommand dbCommand = dbConnection.CreateCommand())
                 {
-                    if (ID == 0)
-                    {
-                        dbCommand.CommandText = 
-                            "INSERT INTO chamados (Assunto,Solicitante,IdDepartamento,DataAbertura)" +
-                            "VALUES (@Assunto,@Solicitante,@IdDepartamento,@DataAbertura)";
-                    }
-                    else
-                    {
-                        dbCommand.CommandText = 
-                            "UPDATE chamados " + 
-                            "SET Assunto=@Assunto, " + 
-                            "    Solicitante=@Solicitante, " +
-                            "    IdDepartamento=@IdDepartamento, " + 
-                            "    DataAbertura=@DataAbertura " + 
-                            "WHERE ID=@ID ";
-                    }
+                    dbCommand.CommandText =
+                        "INSERT INTO chamados (Assunto,Solicitante,IdDepartamento,DataAbertura)" +
+                        "VALUES (@Assunto,@Solicitante,@IdDepartamento,@DataAbertura)";
+
+                    dbCommand.Parameters.AddWithValue("@Assunto", Assunto);
+                    dbCommand.Parameters.AddWithValue("@Solicitante", Solicitante);
+                    dbCommand.Parameters.AddWithValue("@IdDepartamento", IdDepartamento);
+                    dbCommand.Parameters.AddWithValue("@DataAbertura", DataAbertura.ToString(ANSI_DATE_FORMAT));
+
+                    dbConnection.Open();
+                    regsAfetados = dbCommand.ExecuteNonQuery();
+                    dbConnection.Close();
+                }
+            }
+
+            return (regsAfetados > 0);
+        }
+
+        public bool AtualizarChamado(int ID, string Assunto, string Solicitante, int IdDepartamento, DateTime DataAbertura)
+        {           
+            var chamadoExistente = ObterChamado(ID);
+            if (chamadoExistente == null || chamadoExistente.ID == 0)
+            {
+                throw new System.ArgumentException($"Chamado com ID {ID} não encontrado.");
+            }
+
+            int regsAfetados = -1;
+
+            using (SQLiteConnection dbConnection = new SQLiteConnection(CONNECTION_STRING))
+            {
+                using (SQLiteCommand dbCommand = dbConnection.CreateCommand())
+                {
+                    dbCommand.CommandText =
+                        "UPDATE chamados " +
+                        "SET Assunto=@Assunto, " +
+                        "    Solicitante=@Solicitante, " +
+                        "    IdDepartamento=@IdDepartamento, " +
+                        "    DataAbertura=@DataAbertura " +
+                        "WHERE ID=@ID ";
 
                     dbCommand.Parameters.AddWithValue("@Assunto", Assunto);
                     dbCommand.Parameters.AddWithValue("@Solicitante", Solicitante);
@@ -159,11 +182,9 @@ namespace WebApp_Desafio_BackEnd.DataAccess
                     regsAfetados = dbCommand.ExecuteNonQuery();
                     dbConnection.Close();
                 }
-
             }
 
             return (regsAfetados > 0);
-
         }
 
         public bool ExcluirChamado(int idChamado)
@@ -185,6 +206,40 @@ namespace WebApp_Desafio_BackEnd.DataAccess
             }
 
             return (regsAfetados > 0);
+        }
+
+        public IEnumerable<string> ListarSolicitantes()
+        {
+            IList<string> lstSolicitantes = new List<string>();
+
+            using (SQLiteConnection dbConnection = new SQLiteConnection(CONNECTION_STRING))
+            {
+                using (SQLiteCommand dbCommand = dbConnection.CreateCommand())
+                {
+                    dbCommand.CommandText =
+                        "SELECT DISTINCT Solicitante " +
+                        "FROM chamados " +
+                        "WHERE Solicitante IS NOT NULL AND Solicitante != '' " +
+                        "ORDER BY Solicitante";
+
+                    dbConnection.Open();
+
+                    using (SQLiteDataReader dataReader = dbCommand.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            if (!dataReader.IsDBNull(0))
+                            {
+                                lstSolicitantes.Add(dataReader.GetString(0));
+                            }
+                        }
+                        dataReader.Close();
+                    }
+                    dbConnection.Close();
+                }
+            }
+
+            return lstSolicitantes;
         }
     }
 }

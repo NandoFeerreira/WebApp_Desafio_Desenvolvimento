@@ -104,26 +104,66 @@ namespace WebApp_Desafio_API.Controllers
         }
 
         /// <summary>
-        /// Grava os dados de um chamado
+        /// Insere um novo chamado
         /// </summary>
         [HttpPost]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-        [Route("Gravar")]
-        public IActionResult Gravar([FromBody] ChamadoRequest request)
+        [Route("Inserir")]
+        public IActionResult Inserir([FromBody] ChamadoRequest request)
         {
             try
             {
                 if (request == null)
                     throw new ArgumentNullException("Request não informado.");
 
-                var resultado = this.bll.GravarChamado(request.id,
-                                                       request.assunto,
-                                                       request.solicitante,
-                                                       request.idDepartamento,
-                                                       request.dataAbertura);
+                var resultado = this.bll.InserirChamado(request.assunto,
+                                                        request.solicitante,
+                                                        request.idDepartamento,
+                                                        request.dataAbertura);
+
+                return Ok(resultado);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ApplicationException ex)
+            {
+                return StatusCode(422, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Atualiza os dados de um chamado existente
+        /// </summary>
+        [HttpPut]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        [Route("Atualizar")]
+        public IActionResult Atualizar([FromBody] ChamadoRequest request)
+        {
+            try
+            {
+                if (request == null)
+                    throw new ArgumentNullException("Request não informado.");
+
+                if (request.id <= 0)
+                    throw new ArgumentException("ID do chamado inválido.");
+
+                var resultado = this.bll.AtualizarChamado(request.id,
+                                                          request.assunto,
+                                                          request.solicitante,
+                                                          request.idDepartamento,
+                                                          request.dataAbertura);
 
                 return Ok(resultado);
             }
@@ -150,7 +190,7 @@ namespace WebApp_Desafio_API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [Route("Excluir")]
-        public IActionResult Excluir([FromRoute] int idChamado)
+        public IActionResult Excluir([FromQuery] int idChamado)
         {
             try
             {
@@ -165,6 +205,32 @@ namespace WebApp_Desafio_API.Controllers
             catch (ApplicationException ex)
             {
                 return StatusCode(422, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Lista todos os solicitantes únicos
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        [Route("ListarSolicitantes")]
+        public IActionResult ListarSolicitantes()
+        {
+            try
+            {
+                var lst = this.bll.ListarSolicitantes();
+                return Ok(lst);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {

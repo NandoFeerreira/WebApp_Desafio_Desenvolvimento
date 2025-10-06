@@ -1,4 +1,4 @@
-﻿@model WebApp_Desafio_FrontEnd.ViewModels.ChamadoViewModel
+@model WebApp_Desafio_FrontEnd.ViewModels.ChamadoViewModel
 
 @using WebApp_Desafio_FrontEnd.ViewModels
 
@@ -11,9 +11,10 @@
 <div class="row">
     <div class="col-lg-12">
 
-        <form id="form" asp-action="Cadastrar" class="wizard-big" enctype="multipart/form-data" role="form" onsubmit="return false;">
+        <form id="form" asp-action="Editar" class="wizard-big" enctype="multipart/form-data" role="form" onsubmit="return false;">
 
             <input type="hidden" asp-for="ID" />
+            <input type="hidden" asp-for="DataAbertura" />
 
             <div class="row">
                 <div class="form-group col-lg-7 col-md-6 col-sm-12">
@@ -25,7 +26,7 @@
             <div class="row">
                 <div class="form-group col-lg-7 col-md-6 col-sm-12">
                     <label class="form-label" asp-for="Solicitante"></label>
-                    <input type="text" class="form-control" asp-for="Solicitante" id="Solicitante" autocomplete="off">
+                    <input type="text" class="form-control" asp-for="Solicitante">
                     <span class="text-danger" asp-validation-for="Solicitante"></span>
                 </div>
             </div>
@@ -46,22 +47,14 @@
                             }
                         }
                     </select>
-                    <span class="text-danger" asp-validation-for="IdDepartamento"></span>
+                    <span class="text-danger" asp-validation-for="Departamento"></span>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col-lg-3 col-md-3 col-sm-3">
-                    <label class="form-label" asp-for="DataAbertura"></label>
-
-                    <div class="input-group date" data-provide="datepicker">
-                        <input type="text" class="form-control" asp-for="DataAbertura" asp-format="{0:dd/MM/yyyy}" />
-                        <div class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </div>
-                    </div>
-                    <span class="text-danger" asp-validation-for="DataAbertura"></span>
+                    <label class="form-label">Data Abertura</label>
+                    <input type="text" class="form-control" value="@Model.DataAbertura.ToString("dd/MM/yyyy")" readonly disabled />
                 </div>
-
             </div>
         </form>
     </div>
@@ -72,7 +65,6 @@
         <div class="row">
             <div class="form-group col-sm-12 text-right float-right mb-0">
                 <button type="button" id="btnCancelar" class="btn btn-outline btn-default" data-style="slide-left">Cancelar</button>
-                @*<button type="button" id="btnExcluir" class="btn btn-outline btn-danger" data-style="slide-left">Excluir</button>*@
                 <button type="button" id="btnSalvar" class="btn btn-outline btn-primary" data-style="slide-left">Salvar</button>
             </div>
         </div>
@@ -80,19 +72,20 @@
 </div>
 
 @section styles
-{
+    {
     <link rel="stylesheet" href="~/lib/sweetalert2/sweetalert2.min.css" />
-    <link rel="stylesheet" href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" />
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
 }
 
 @section scripts
-{
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    {
+    <!-- SweetAlert2 -->
     <script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
+    <!-- Bootstrap Datepicker -->
     <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
     <script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.pt-br.min.js"></script>
+
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/js/Chamados/Cadastrar.js" asp-append-version="true"></script>
+
+    <script src="~/js/Chamados/Editar.js" asp-append-version="true"></script>
 }

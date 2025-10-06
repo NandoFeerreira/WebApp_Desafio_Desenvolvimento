@@ -13,14 +13,19 @@ namespace WebApp_Desafio_BackEnd.Business
             return dal.ListarDepartamentos();
         }
 
-        public Departamento ObterDepartamento(int idDepartamento)
+        public Departamento ObterDepartamentoPorId(int idDepartamento)
         {
-            return dal.ObterDepartamento(idDepartamento);
+            return dal.ObterDepartamentoPorId(idDepartamento);
         }
 
-        public bool GravarDepartamento(int ID, string Descricao)
+        public bool InserirDepartamento(string Descricao)
         {
-            return dal.GravarDepartamento(ID, Descricao);
+            return dal.InserirDepartamento(Descricao);
+        }
+
+        public bool AtualizarDepartamento(int ID, string Descricao)
+        {
+            return dal.AtualizarDepartamento(ID, Descricao);
         }
 
         public bool ExcluirDepartamento(int idDepartamento)

@@ -1,4 +1,4 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification\ 
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification\
 for details on configuring this project to bundle and minify static web assets. */
 body {
     padding-top: 50px;
@@ -66,4 +66,40 @@ body {
 }
 .row .col-md-3 span {
     font-size: 200%;
+}
+
+/* Ajuste específico para o calendário - Input Group */
+.input-group.date {
+    display: table;
+    width: 100%;
+}
+
+.input-group.date .form-control {
+    display: table-cell;
+    height: 34px !important;
+    border-radius: 4px 0 0 4px;
+}
+
+.input-group.date .input-group-addon {
+    display: table-cell;
+    width: 40px;
+    padding: 6px 12px !important;
+    height: 34px !important;
+    line-height: 22px !important;
+    vertical-align: middle !important;
+    background-color: #eeeeee;
+    border: 1px solid #cccccc;
+    border-left: 0;
+    border-radius: 0 4px 4px 0;
+    text-align: center;
+}
+
+.input-group.date .input-group-addon .glyphicon-calendar {
+    font-size: 16px !important;
+    line-height: 22px !important;
+    vertical-align: middle;
+}
+
+.input-group-addon {
+    font-size: 7px !important;
 }

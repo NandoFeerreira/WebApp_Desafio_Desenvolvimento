@@ -85,16 +85,16 @@ namespace WebApp_Desafio_FrontEnd.Controllers
             try
             {
                 var chamadosApiClient = new ChamadosApiClient();
-                var realizadoComSucesso = chamadosApiClient.ChamadoGravar(chamadoVM);
+                var realizadoComSucesso = chamadosApiClient.ChamadoInserir(chamadoVM);
 
                 if (realizadoComSucesso)
                     return Ok(new ResponseViewModel(
-                                $"Chamado gravado com sucesso!",
+                                $"Chamado inserido com sucesso!",
                                 AlertTypes.success,
                                 this.RouteData.Values["controller"].ToString(),
                                 nameof(this.Listar)));
                 else
-                    throw new ApplicationException($"Falha ao excluir o Chamado.");
+                    throw new ApplicationException($"Falha ao inserir o Chamado.");
             }
             catch (Exception ex)
             {
@@ -105,7 +105,7 @@ namespace WebApp_Desafio_FrontEnd.Controllers
         [HttpGet]
         public IActionResult Editar([FromRoute] int id)
         {
-            ViewData["Title"] = "Cadastrar Novo Chamado";
+            ViewData["Title"] = "Editar Chamado";
 
             try
             {
@@ -115,7 +115,30 @@ namespace WebApp_Desafio_FrontEnd.Controllers
                 var departamentosApiClient = new DepartamentosApiClient();
                 ViewData["ListaDepartamentos"] = departamentosApiClient.DepartamentosListar();
 
-                return View("Cadastrar", chamadoVM);
+                return View("Editar", chamadoVM);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseViewModel(ex));
+            }
+        }
+
+        [HttpPut]
+        public IActionResult Editar(ChamadoViewModel chamadoVM)
+        {
+            try
+            {
+                var chamadosApiClient = new ChamadosApiClient();
+                var realizadoComSucesso = chamadosApiClient.ChamadoAtualizar(chamadoVM);
+
+                if (realizadoComSucesso)
+                    return Ok(new ResponseViewModel(
+                                $"Chamado atualizado com sucesso!",
+                                AlertTypes.success,
+                                this.RouteData.Values["controller"].ToString(),
+                                nameof(this.Listar)));
+                else
+                    throw new ApplicationException($"Falha ao atualizar o Chamado.");
             }
             catch (Exception ex)
             {
@@ -146,6 +169,9 @@ namespace WebApp_Desafio_FrontEnd.Controllers
             }
         }
 
+
+
+
         [HttpGet]
         public IActionResult Report()
         {
@@ -158,17 +184,41 @@ namespace WebApp_Desafio_FrontEnd.Controllers
             //
             LocalReport localReport = new LocalReport(path);
 
-            // Carrega os dados que serão apresentados no relatório
+            
             var chamadosApiClient = new ChamadosApiClient();
             var lstChamados = chamadosApiClient.ChamadosListar();
 
             localReport.AddDataSource("dsChamados", lstChamados);
-
-            // Renderiza o relatório em PDF
+          
             ReportResult reportResult = localReport.Execute(RenderType.Pdf);
 
-            //return File(reportResult.MainStream, "application/pdf");
             return File(reportResult.MainStream, "application/octet-stream", "rptChamados.pdf");
+        }
+
+        [HttpGet]
+        public IActionResult AutocompleteSolicitantes(string term)
+        {
+            try
+            {
+                var chamadosApiClient = new ChamadosApiClient();
+                var lstSolicitantes = chamadosApiClient.ListarSolicitantes();
+
+                if (string.IsNullOrEmpty(term))
+                {
+                    return Json(lstSolicitantes.Take(10));
+                }
+
+                var solicitantesFiltrados = lstSolicitantes
+                    .Where(s => s.ToLower().Contains(term.ToLower()))
+                    .Take(10)
+                    .ToList();
+
+                return Json(solicitantesFiltrados);
+            }
+            catch (Exception ex)
+            {
+                return Json(new List<string>());
+            }
         }
 
     }

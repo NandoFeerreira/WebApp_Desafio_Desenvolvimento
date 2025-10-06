@@ -10,7 +10,7 @@ namespace WebApp_Desafio_FrontEnd.ApiClients.Desafio_API
 
         private const string departamentosListUrl = "api/Departamentos/Listar";
 
-        private string desafioApiUrl = "https://localhost:5001/"; // Endereço API
+        private string desafioApiUrl = "https://localhost:44388/"; // Endereço API
 
         public DepartamentosApiClient() : base()
         {
@@ -35,7 +35,7 @@ namespace WebApp_Desafio_FrontEnd.ApiClients.Desafio_API
             return JsonConvert.DeserializeObject<List<DepartamentoViewModel>>(json);
         }
 
-        public DepartamentoViewModel DepartamentoObter(int idDepartamento)
+        public DepartamentoViewModel DepartamentoObterPorId(int idDepartamento)
         {
             var headers = new Dictionary<string, object>()
             {
@@ -56,14 +56,30 @@ namespace WebApp_Desafio_FrontEnd.ApiClients.Desafio_API
             return JsonConvert.DeserializeObject<DepartamentoViewModel>(json);
         }
 
-        public bool DepartamentoGravar(DepartamentoViewModel departamento)
+        public bool DepartamentoInserir(DepartamentoViewModel departamento)
         {
             var headers = new Dictionary<string, object>()
             {
                 { "TokenAutenticacao", tokenAutenticacao }
             };
 
-            var response = base.Post($"{desafioApiUrl}{departamentosListUrl.Replace("Listar", "Gravar")}", departamento, headers);
+            var response = base.Post($"{desafioApiUrl}{departamentosListUrl.Replace("Listar", "Inserir")}", departamento, headers);
+
+            base.EnsureSuccessStatusCode(response);
+
+            string json = base.ReadHttpWebResponseMessage(response);
+
+            return JsonConvert.DeserializeObject<bool>(json);
+        }
+
+        public bool DepartamentoAtualizar(DepartamentoViewModel departamento)
+        {
+            var headers = new Dictionary<string, object>()
+            {
+                { "TokenAutenticacao", tokenAutenticacao }
+            };
+
+            var response = base.Put($"{desafioApiUrl}{departamentosListUrl.Replace("Listar", "Atualizar")}", departamento, headers);
 
             base.EnsureSuccessStatusCode(response);
 

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SQLite;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WebApp_Desafio_BackEnd.Models;
 
 namespace WebApp_Desafio_BackEnd.DataAccess
@@ -49,7 +44,7 @@ namespace WebApp_Desafio_BackEnd.DataAccess
             return lstDepartamentos;
         }
 
-        public Departamento ObterDepartamento(int idDepartamento)
+        public Departamento ObterDepartamentoPorId(int idDepartamento)
         {
             var departamento = Departamento.Empty;
 
@@ -81,7 +76,7 @@ namespace WebApp_Desafio_BackEnd.DataAccess
             return departamento;
         }
 
-        public bool GravarDepartamento(int ID, string Descricao)
+        public bool InserirDepartamento(string Descricao)
         {
             int regsAfetados = -1;
 
@@ -89,15 +84,34 @@ namespace WebApp_Desafio_BackEnd.DataAccess
             {
                 using (SQLiteCommand dbCommand = dbConnection.CreateCommand())
                 {
-                    if (ID == 0)
-                    {
-                        dbCommand.CommandText = "INSERT INTO departamentos (Descricao) VALUES (@Descricao)";
-                    }
-                    else
-                    {
-                        dbCommand.CommandText = "UPDATE departamentos SET Descricao=@Descricao WHERE ID=@ID";
-                    }
+                    dbCommand.CommandText = "INSERT INTO departamentos (Descricao) VALUES (@Descricao)";
+                    dbCommand.Parameters.AddWithValue("@Descricao", Descricao);
 
+                    dbConnection.Open();
+                    regsAfetados = dbCommand.ExecuteNonQuery();
+                    dbConnection.Close();
+                }
+            }
+
+            return (regsAfetados > 0);
+        }
+
+        public bool AtualizarDepartamento(int ID, string Descricao)
+        {
+
+            var departamentoExistente = ObterDepartamentoPorId(ID);
+            if (departamentoExistente == null || departamentoExistente.ID == 0)
+            {
+                throw new System.ArgumentException($"Departamento com ID {ID} não encontrado.");
+            }
+
+            int regsAfetados = -1;
+
+            using (SQLiteConnection dbConnection = new SQLiteConnection(CONNECTION_STRING))
+            {
+                using (SQLiteCommand dbCommand = dbConnection.CreateCommand())
+                {
+                    dbCommand.CommandText = "UPDATE departamentos SET Descricao=@Descricao WHERE ID=@ID";
                     dbCommand.Parameters.AddWithValue("@Descricao", Descricao);
                     dbCommand.Parameters.AddWithValue("@ID", ID);
 

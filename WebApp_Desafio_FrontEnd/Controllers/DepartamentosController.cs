@@ -1,13 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 using System;
+using System.IO;
 using WebApp_Desafio_FrontEnd.ApiClients.Desafio_API;
 using WebApp_Desafio_FrontEnd.ViewModels;
 using WebApp_Desafio_FrontEnd.ViewModels.Enums;
+using AspNetCore.Reporting;
 
 namespace WebApp_Desafio_FrontEnd.Controllers
 {
     public class DepartamentosController : Controller
     {
+        private readonly IHostingEnvironment _hostEnvironment;
+
+        public DepartamentosController(IHostingEnvironment hostEnvironment)
+        {
+            _hostEnvironment = hostEnvironment;
+        }
         [HttpGet]
         public IActionResult Index()
         {
@@ -58,16 +67,16 @@ namespace WebApp_Desafio_FrontEnd.Controllers
             try
             {
                 var departamentosApiClient = new DepartamentosApiClient();
-                var realizadoComSucesso = departamentosApiClient.DepartamentoGravar(departamentoVM);
+                var realizadoComSucesso = departamentosApiClient.DepartamentoInserir(departamentoVM);
 
                 if (realizadoComSucesso)
                     return Ok(new ResponseViewModel(
-                                $"Departamento gravado com sucesso!",
+                                $"Departamento inserido com sucesso!",
                                 AlertTypes.success,
                                 this.RouteData.Values["controller"].ToString(),
                                 nameof(this.Listar)));
                 else
-                    throw new ApplicationException($"Falha ao gravar o Departamento.");
+                    throw new ApplicationException($"Falha ao inserir o Departamento.");
             }
             catch (Exception ex)
             {
@@ -83,9 +92,32 @@ namespace WebApp_Desafio_FrontEnd.Controllers
             try
             {
                 var departamentosApiClient = new DepartamentosApiClient();
-                var departamentoVM = departamentosApiClient.DepartamentoObter(id);
+                var departamentoVM = departamentosApiClient.DepartamentoObterPorId(id);
 
-                return View("Cadastrar", departamentoVM);
+                return View("Editar", departamentoVM);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseViewModel(ex));
+            }
+        }
+
+        [HttpPut]
+        public IActionResult Editar(DepartamentoViewModel departamentoVM)
+        {
+            try
+            {
+                var departamentosApiClient = new DepartamentosApiClient();
+                var realizadoComSucesso = departamentosApiClient.DepartamentoAtualizar(departamentoVM);
+
+                if (realizadoComSucesso)
+                    return Ok(new ResponseViewModel(
+                                $"Departamento atualizado com sucesso!",
+                                AlertTypes.success,
+                                this.RouteData.Values["controller"].ToString(),
+                                nameof(this.Listar)));
+                else
+                    throw new ApplicationException($"Falha ao atualizar o Departamento.");
             }
             catch (Exception ex)
             {
@@ -114,6 +146,27 @@ namespace WebApp_Desafio_FrontEnd.Controllers
             {
                 return BadRequest(new ResponseViewModel(ex));
             }
+        }
+
+        [HttpGet]
+        public IActionResult Report()
+        {
+            string mimeType = string.Empty;
+            int extension = 1;
+            string contentRootPath = _hostEnvironment.ContentRootPath;
+            string path = Path.Combine(contentRootPath, "wwwroot", "reports", "rptDepartamentos.rdlc");
+
+            LocalReport localReport = new LocalReport(path);
+           
+            var departamentosApiClient = new DepartamentosApiClient();
+            var lstDepartamentos = departamentosApiClient.DepartamentosListar();
+
+            localReport.AddDataSource("dsDepartamentos", lstDepartamentos);
+
+           
+            ReportResult reportResult = localReport.Execute(RenderType.Pdf);
+
+            return File(reportResult.MainStream, "application/octet-stream", "rptDepartamentos.pdf");
         }
     }
 }

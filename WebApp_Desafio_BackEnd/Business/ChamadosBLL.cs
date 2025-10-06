@@ -19,14 +19,31 @@ namespace WebApp_Desafio_BackEnd.Business
             return dal.ObterChamado(idChamado);
         }
 
-        public bool GravarChamado(int ID, string Assunto, string Solicitante, int IdDepartamento, DateTime DataAbertura)
+        public bool InserirChamado(string Assunto, string Solicitante, int IdDepartamento, DateTime DataAbertura)
         {
-            return dal.GravarChamado(ID, Assunto, Solicitante, IdDepartamento, DataAbertura);
+            // Validação: não permitir data retroativa
+            if (DataAbertura.Date < DateTime.Now.Date)
+            {
+                throw new ArgumentException("Não é permitido criar chamados com data retroativa.");
+            }
+
+            return dal.InserirChamado(Assunto, Solicitante, IdDepartamento, DataAbertura);
+        }
+
+        public bool AtualizarChamado(int ID, string Assunto, string Solicitante, int IdDepartamento, DateTime DataAbertura)
+        {         
+          
+            return dal.AtualizarChamado(ID, Assunto, Solicitante, IdDepartamento, DataAbertura);
         }
 
         public bool ExcluirChamado(int idChamado)
         {
             return dal.ExcluirChamado(idChamado);
+        }
+
+        public IEnumerable<string> ListarSolicitantes()
+        {
+            return dal.ListarSolicitantes();
         }
     }
 }

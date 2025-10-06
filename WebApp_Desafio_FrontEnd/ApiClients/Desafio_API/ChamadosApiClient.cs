@@ -10,10 +10,12 @@ namespace WebApp_Desafio_FrontEnd.ApiClients.Desafio_API
 
         private const string chamadosListUrl = "api/Chamados/Listar";
         private const string chamadosObterUrl = "api/Chamados/Obter";
-        private const string chamadosGravarUrl = "api/Chamados/Gravar";
+        private const string chamadosInserirUrl = "api/Chamados/Inserir";
+        private const string chamadosAtualizarUrl = "api/Chamados/Atualizar";
         private const string chamadosExcluirUrl = "api/Chamados/Excluir";
+        private const string chamadosListarSolicitantesUrl = "api/Chamados/ListarSolicitantes";
 
-        private string desafioApiUrl = "https://localhost:5001/"; // Endereço API
+        private string desafioApiUrl = "https://localhost:44388/"; // Endereço API
 
         public ChamadosApiClient() : base()
         {
@@ -59,14 +61,30 @@ namespace WebApp_Desafio_FrontEnd.ApiClients.Desafio_API
             return JsonConvert.DeserializeObject<ChamadoViewModel>(json);
         }
 
-        public bool ChamadoGravar(ChamadoViewModel chamado)
+        public bool ChamadoInserir(ChamadoViewModel chamado)
         {
             var headers = new Dictionary<string, object>()
             {
                 { "TokenAutenticacao", tokenAutenticacao }
             };
 
-            var response = base.Post($"{desafioApiUrl}{chamadosGravarUrl}", chamado, headers);
+            var response = base.Post($"{desafioApiUrl}{chamadosInserirUrl}", chamado, headers);
+
+            base.EnsureSuccessStatusCode(response);
+
+            string json = base.ReadHttpWebResponseMessage(response);
+
+            return JsonConvert.DeserializeObject<bool>(json);
+        }
+
+        public bool ChamadoAtualizar(ChamadoViewModel chamado)
+        {
+            var headers = new Dictionary<string, object>()
+            {
+                { "TokenAutenticacao", tokenAutenticacao }
+            };
+
+            var response = base.Put($"{desafioApiUrl}{chamadosAtualizarUrl}", chamado, headers);
 
             base.EnsureSuccessStatusCode(response);
 
@@ -94,6 +112,25 @@ namespace WebApp_Desafio_FrontEnd.ApiClients.Desafio_API
             string json = base.ReadHttpWebResponseMessage(response);
 
             return JsonConvert.DeserializeObject<bool>(json);
+        }
+
+
+        public List<string> ListarSolicitantes()
+        {
+            var headers = new Dictionary<string, object>()
+            {
+                { "TokenAutenticacao", tokenAutenticacao }
+            };
+
+            var querys = default(Dictionary<string, object>);
+
+            var response = base.Get($"{desafioApiUrl}{chamadosListarSolicitantesUrl}", querys, headers);
+
+            base.EnsureSuccessStatusCode(response);
+
+            string json = base.ReadHttpWebResponseMessage(response);
+
+            return JsonConvert.DeserializeObject<List<string>>(json);
         }
 
     }
